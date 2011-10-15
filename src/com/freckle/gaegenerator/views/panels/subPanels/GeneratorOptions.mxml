@@ -1,0 +1,89 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:VBox
+	xmlns:mx="http://www.adobe.com/2006/mxml" 
+	width="100%" 
+	height="100%"
+	creationComplete="onCC()">
+	<mx:Script>
+		<![CDATA[
+			import mx.binding.utils.BindingUtils;
+			import mx.controls.Alert;
+			import com.freckle.gaegenerator.events.FileGeneratorEvent;
+			import com.freckle.gaegenerator.vo.SchemaObjectVO;
+			import com.freckle.gaegenerator.helpers.FileGenerationCoordinator;
+			import mx.collections.ArrayCollection;
+			import com.freckle.gaegenerator.model.AppModelLocator;
+			import com.adobe.cairngorm.control.CairngormEventDispatcher;
+			import com.freckle.gaegenerator.events.AppDataEvent;
+			import com.freckle.gaegenerator.vo.SchemaVO;
+			[Bindable]
+			public var dataProvider:SchemaVO;
+		
+			private function onCC():void{
+				
+				CairngormEventDispatcher.getInstance().addEventListener(AppDataEvent.SCHEMA_CHANGED, onSchemaChanged); 
+			
+			}
+			
+			private function onSchemaChanged(evt:AppDataEvent):void{
+				generatorOptionsGrid.dataProvider = AppModelLocator.getInstance().schema.getAllObjects();
+			}
+			
+			private function onOptionChanged(evt:Event):void{
+				CairngormEventDispatcher.getInstance().dispatchEvent(new AppDataEvent(AppDataEvent.SCHEMA_CHANGED));
+			}
+			
+			private function generateFiles():void{
+				
+				CairngormEventDispatcher.getInstance().dispatchEvent(new FileGeneratorEvent(FileGeneratorEvent.START_GENERATION));
+			}
+		]]>
+	</mx:Script>
+	<mx:VDividedBox width="100%" height="100%">
+		
+	
+		<mx:DataGrid id="generatorOptionsGrid" click="onOptionChanged(event)" width="100%" height="100" dataProvider="{ AppModelLocator.getInstance().schema.getAllObjects() }">
+			<mx:columns>
+				<mx:DataGridColumn width="50" headerText="Model" dataField="generateModel">
+					<mx:itemRenderer>
+						<mx:Component>
+							<mx:CheckBox click="data.generateModel=!data.generateModel"  selected="{data.generateModel}"/>
+						</mx:Component>						
+					</mx:itemRenderer>
+	
+				</mx:DataGridColumn>
+				<mx:DataGridColumn width="60" headerText="Handler" dataField="generateHandler">
+					<mx:itemRenderer>
+						<mx:Component>
+							<mx:CheckBox click="data.generateHandler=!data.generateHandler"  selected="{data.generateHandler}"/>
+						</mx:Component>						
+					</mx:itemRenderer>
+	
+				</mx:DataGridColumn>
+				<mx:DataGridColumn width="80" headerText="XSL" dataField="generateXSL">
+					<mx:itemRenderer>
+						<mx:Component>
+							<mx:CheckBox click="data.generateXSL=!data.generateXSL"  selected="{data.generateXSL}"/>
+						</mx:Component>						
+					</mx:itemRenderer>
+	
+				</mx:DataGridColumn>
+				<mx:DataGridColumn width="100" headerText="XMLResponse" dataField="generateXMLResponse">
+					<mx:itemRenderer>
+						<mx:Component>
+							<mx:CheckBox click="data.generateXMLResponse=!data.generateXMLResponse"  selected="{data.generateXMLResponse}"/>
+						</mx:Component>						
+					</mx:itemRenderer>
+	
+				</mx:DataGridColumn>
+				<mx:DataGridColumn  headerText="Object" dataField="name"/>
+			</mx:columns>
+		</mx:DataGrid>
+		
+		<mx:VBox width="100%" height="100%">
+			<mx:Label text="Log:"/>
+			<mx:TextArea height="100%" width="100%" text="{ FileGenerationCoordinator.getInstance().generationLog}" editable="false" />
+			<mx:Button label="Generate Files" click="generateFiles()" />
+		</mx:VBox>
+	</mx:VDividedBox>
+</mx:VBox>

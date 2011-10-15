@@ -1,0 +1,151 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:VBox xmlns:mx="http://www.adobe.com/2006/mxml" width="100%" height="100%">
+	<mx:Script>
+		<![CDATA[
+			import com.freckle.gaegenerator.events.AppDataEvent;
+			import com.adobe.cairngorm.control.CairngormEventDispatcher;
+			import com.freckle.gaegenerator.model.AppModelLocator;
+			import com.freckle.gaegenerator.vo.SchemaVO;
+			[Bindable]
+			public var dataProvider:SchemaVO;
+			
+			private var model:AppModelLocator = AppModelLocator.getInstance();
+			
+			private function onSchemaNameChanged():void{
+				
+				dataProvider.name = schemaName_txti.text;
+				model.schemaXML = model.schema.getSchemaXML();
+				CairngormEventDispatcher.getInstance().dispatchEvent(new AppDataEvent(AppDataEvent.SCHEMA_CHANGED));
+			}
+			private function onAppNameChanged():void{
+				dataProvider.appName = appName_txti.text.toLowerCase();
+				model.schemaXML = model.schema.getSchemaXML();
+				CairngormEventDispatcher.getInstance().dispatchEvent(new AppDataEvent(AppDataEvent.SCHEMA_CHANGED));
+			}
+			private function onCreatedByChanged():void{
+				dataProvider.createdBy = createdBy_txti.text;
+				CairngormEventDispatcher.getInstance().dispatchEvent(new AppDataEvent(AppDataEvent.SCHEMA_CHANGED));
+			}
+			private function onCopyrightChanged():void{
+				dataProvider.copyrightText = copyright_txti.text;
+				CairngormEventDispatcher.getInstance().dispatchEvent(new AppDataEvent(AppDataEvent.SCHEMA_CHANGED));
+			}
+			private function browseForAppDir():void{
+				var docsDir:File = File.documentsDirectory;
+				docsDir.browseForDirectory("Select Google App Engine Application Directory...");
+				docsDir.addEventListener(Event.SELECT, onAppFolderSelected);	
+			}
+			
+			private function browseForXSLDir():void{
+				var xslDir:File = File.documentsDirectory;
+				xslDir.browseForDirectory("Select XSL Directory...");
+				xslDir.addEventListener(Event.SELECT, onXSLFolderSelected);	
+			}
+			
+			private function browseForTemplateDir():void{
+				var docsDir:File = File.documentsDirectory;
+				docsDir.browseForDirectory("Select Google App Engine Templates Directory...");
+				docsDir.addEventListener(Event.SELECT, onTemplateFolderSelected);	
+			}
+			private function onXSLFolderSelected(event:Event):void{
+				var newFile:File = event.target as File;
+				dataProvider.xslDir = newFile.nativePath;
+				CairngormEventDispatcher.getInstance().dispatchEvent(new AppDataEvent(AppDataEvent.SCHEMA_CHANGED));
+				model.userPrefs.lastDirectoryOpened = newFile.nativePath;
+			}
+			
+			
+			private function onAppFolderSelected(event:Event):void{
+				var newFile:File = event.target as File;
+				model.userPrefs
+				dataProvider.gaeAppDir = newFile.nativePath;
+				CairngormEventDispatcher.getInstance().dispatchEvent(new AppDataEvent(AppDataEvent.SCHEMA_CHANGED));
+				model.userPrefs.lastDirectoryOpened = newFile.nativePath;
+			}
+			private function onTemplateFolderSelected(event:Event):void{
+				var newFile:File = event.target as File;
+				dataProvider.templatesDir = newFile.nativePath;
+				CairngormEventDispatcher.getInstance().dispatchEvent(new AppDataEvent(AppDataEvent.SCHEMA_CHANGED));
+				model.userPrefs.lastDirectoryOpened = newFile.nativePath;
+			}
+		]]>
+	</mx:Script>
+	<mx:Grid width="100%" height="100%">
+			<mx:GridRow>
+				<mx:GridItem>
+					<mx:Label text="Schema Name:" />
+				</mx:GridItem>
+				<mx:GridItem>
+					<mx:TextInput id="schemaName_txti" text="{ dataProvider.name}" change="onSchemaNameChanged()" />
+				</mx:GridItem>
+			</mx:GridRow>
+			<mx:GridRow>
+				<mx:GridItem>
+					<mx:Label text="App Name:" />
+				</mx:GridItem>
+				<mx:GridItem>
+					<mx:TextInput id="appName_txti" toolTip="The Name of the Application (has to be lowercase)" text="{ dataProvider.appName}" change="onAppNameChanged()" />
+				</mx:GridItem>
+			</mx:GridRow>
+			<mx:GridRow>
+				<mx:GridItem>
+					<mx:Label text="Created By:" />
+				</mx:GridItem>
+				<mx:GridItem>
+					<mx:TextInput id="createdBy_txti" text="{ dataProvider.createdBy }" change="onCreatedByChanged()" />
+				</mx:GridItem>
+			</mx:GridRow>
+			<mx:GridRow>
+				<mx:GridItem>
+					<mx:Label text="Copyright:" />
+				</mx:GridItem>
+				<mx:GridItem>
+					<mx:TextInput id="copyright_txti" text="{ dataProvider.copyrightText }" change="onCopyrightChanged()" />
+				</mx:GridItem>
+			</mx:GridRow>
+			<mx:GridRow>
+				
+			</mx:GridRow>
+			<mx:GridRow>
+				<mx:GridItem colSpan="2">
+					<mx:HBox width="100%" verticalAlign="middle">
+						<mx:Label text="Directories:"/>
+						<mx:HRule width="100%"/>
+					</mx:HBox>
+				</mx:GridItem>
+			</mx:GridRow>
+			<mx:GridRow>
+				<mx:GridItem colSpan="2">
+					<mx:VBox width="100%">
+						<mx:Label text="Google App Engine App Directory:"/>
+						<mx:HBox width="100%">
+							<mx:TextInput width="200" enabled="false" text="{ dataProvider.gaeAppDir }" />
+							<mx:Button label="Browse" click="browseForAppDir()" />	
+						</mx:HBox>
+					</mx:VBox>
+				</mx:GridItem>
+			</mx:GridRow>
+			<mx:GridRow>
+				<mx:GridItem colSpan="2">
+					<mx:VBox width="100%">
+						<mx:Label text="Google App Engine Templates Directory:"/>
+						<mx:HBox width="100%">
+							<mx:TextInput width="200" enabled="false" text="{ dataProvider.templatesDir }" />
+							<mx:Button label="Browse" click="browseForTemplateDir()" />	
+						</mx:HBox>
+					</mx:VBox>
+				</mx:GridItem>
+			</mx:GridRow>
+			<mx:GridRow>
+				<mx:GridItem colSpan="2">
+					<mx:VBox width="100%">
+						<mx:Label text="Google App Engine XSL Directory:"/>
+						<mx:HBox width="100%">
+							<mx:TextInput width="200" enabled="false" text="{ dataProvider.xslDir }" />
+							<mx:Button label="Browse" click="browseForXSLDir()" />	
+						</mx:HBox>
+					</mx:VBox>
+				</mx:GridItem>
+			</mx:GridRow>
+		</mx:Grid>
+</mx:VBox>

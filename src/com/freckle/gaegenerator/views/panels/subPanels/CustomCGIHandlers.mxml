@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:VBox xmlns:mx="http://www.adobe.com/2006/mxml" width="100%" height="100%">
+	<mx:Script>
+		<![CDATA[
+			import com.freckle.gaegenerator.events.AppDataEvent;
+			import com.adobe.cairngorm.control.CairngormEventDispatcher;
+			import mx.controls.Alert;
+			import com.freckle.gaegenerator.vo.CustomCGIHandlerVO;
+			import mx.collections.ArrayCollection;
+			[Bindable]
+			public var dataProvider:ArrayCollection = new ArrayCollection();
+			
+			private function createHandler():void{
+				if(methodName_txti.text != "" && handlerName_txti.text != "" && fileName_txti.text != ""){
+					var vo:CustomCGIHandlerVO = new CustomCGIHandlerVO(methodName_txti.text, handlerName_txti.text,fileName_txti.text);
+					dataProvider.addItem(vo);
+				}else{
+					Alert.show("Please specify a method name and handler name.");
+				}
+				CairngormEventDispatcher.getInstance().dispatchEvent(new AppDataEvent(AppDataEvent.SCHEMA_CHANGED));
+			}
+			
+			private function listLabelFunction(o:Object):String{
+				var vo:CustomCGIHandlerVO = o as CustomCGIHandlerVO;
+				return "('/" + vo.methodName + "', "+ vo.handlerName  + ")";
+			}
+			private function removeHandler():void{
+				if(handlerList.selectedIndex >= 0){
+					dataProvider.removeItemAt(handlerList.selectedIndex);
+				}
+				CairngormEventDispatcher.getInstance().dispatchEvent(new AppDataEvent(AppDataEvent.SCHEMA_CHANGED));
+			}
+		]]>
+	</mx:Script>
+	
+		<mx:Form>
+			<mx:FormItem label="Method Name:">
+				<mx:TextInput id="methodName_txti" restrict="abcdefghijklmnopqrstuvwxyz01234567890ABCDEFGHIJKLMNOPQRSTUVWXYZ" />
+			</mx:FormItem>
+			<mx:FormItem label="Handler Name:">
+				<mx:TextInput id="handlerName_txti" restrict="abcdefghijklmnopqrstuvwxyz01234567890ABCDEFGHIJKLMNOPQRSTUVWXYZ" />
+			</mx:FormItem>
+
+			<mx:FormItem label="File Name:">
+				<mx:TextInput id="fileName_txti" restrict="abcdefghijklmnopqrstuvwxyz01234567890ABCDEFGHIJKLMNOPQRSTUVWXYZ" />
+			</mx:FormItem>
+			<mx:FormItem>
+				<mx:Button label="Create Custom CGI Handler" click="createHandler()"/>
+			</mx:FormItem>
+		</mx:Form>
+		<mx:List 
+			id="handlerList" 
+			width="100%" 
+			height="100%" 
+			dataProvider="{ dataProvider }" 
+			labelFunction="listLabelFunction"
+			visible="{ (dataProvider.length > 0) }"
+			/>
+		<mx:Button 
+			label="Remove Handler" 
+			click="removeHandler()"
+			visible="{ (dataProvider.length > 0) }"/>
+
+</mx:VBox>

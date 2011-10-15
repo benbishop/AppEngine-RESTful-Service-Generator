@@ -1,0 +1,102 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:Panel 
+	xmlns:mx="http://www.adobe.com/2006/mxml" 
+	layout="absolute" 
+	width="100%" 
+	height="100%"
+	title="Object Inspector"
+	enabled="{ AppModelLocator.getInstance().selectedSchemaObj != null}" xmlns:subPanels="com.freckle.gaegenerator.views.panels.subPanels.*">
+	<mx:Script>
+		<![CDATA[
+			import com.freckle.gaegenerator.events.AppDataEvent;
+			import com.adobe.cairngorm.control.CairngormEventDispatcher;
+			import com.freckle.gaegenerator.model.AppModelLocator;
+			import com.freckle.gaegenerator.vo.SchemaPropVO;
+			import com.freckle.gaegenerator.vo.SchemaObjectVO;
+			[Bindable]
+			public var dataProvider:SchemaObjectVO;
+			
+			private function addProperty():void{
+				var vo:SchemaPropVO = new SchemaPropVO("New Property");
+				dataProvider.properties.addItem(vo);
+				CairngormEventDispatcher.getInstance().dispatchEvent(new AppDataEvent(AppDataEvent.SCHEMA_CHANGED));
+			}
+			
+			private function deleteProperty():void{
+				if(props_dg.selectedItem != null){
+					dataProvider.properties.removeItemAt(props_dg.selectedIndex);
+				}
+				CairngormEventDispatcher.getInstance().dispatchEvent(new AppDataEvent(AppDataEvent.SCHEMA_CHANGED));
+			}
+			private function onNameChange():void{
+				dataProvider.name = objectName_txti.text;
+				AppModelLocator.getInstance().schemaXML = AppModelLocator.getInstance().schema.getSchemaXML();
+				CairngormEventDispatcher.getInstance().dispatchEvent(new AppDataEvent(AppDataEvent.SCHEMA_CHANGED));
+			}
+			private function onNameFocus():void{
+				if(objectName_txti.text == "ObjectName"){
+					objectName_txti.text = "";
+				}
+			}
+			private function onNameFocusOut():void{
+				if(objectName_txti.text == ""){
+					objectName_txti.text = "ObjectName";
+				}
+				this.dataProvider.name = objectName_txti.text;
+				AppModelLocator.getInstance().schemaXML = AppModelLocator.getInstance().schema.getSchemaXML();
+				CairngormEventDispatcher.getInstance().dispatchEvent(new AppDataEvent(AppDataEvent.SCHEMA_CHANGED));
+			}
+			private function set1to1():void{
+				dataProvider.relationshipType = SchemaObjectVO.ONE_TO_ONE_CHILD;
+				CairngormEventDispatcher.getInstance().dispatchEvent(new AppDataEvent(AppDataEvent.SCHEMA_CHANGED));
+			}
+			private function set1toMany():void{
+				dataProvider.relationshipType = SchemaObjectVO.ONE_TO_MANY_CHILD;
+				CairngormEventDispatcher.getInstance().dispatchEvent(new AppDataEvent(AppDataEvent.SCHEMA_CHANGED));
+			}
+		]]>
+	</mx:Script>
+	<mx:VBox width="100%" height="100%" paddingLeft="10" paddingRight="10" paddingTop="10">
+		<mx:HBox width="100%">
+			<mx:Label text="Object Name:"/>
+			<mx:TextInput id="objectName_txti" focusIn="onNameFocus()" focusOut="onNameFocusOut()" change="onNameChange()" restrict="abcdefghijklmnopqrstuvwxyz01234567890ABCDEFGHIJKLMNOPQRSTUVWXYZ" text="{ dataProvider.name }"/>
+		</mx:HBox>
+		<mx:HBox width="100%" includeInLayout="{ dataProvider.parent != null }"  visible="{ dataProvider.parent != null }">
+			<mx:Label text="Parent Relationship Type:"/>
+			<mx:RadioButton label="1-to1" click="set1to1()" selected="{ (dataProvider.relationshipType == SchemaObjectVO.ONE_TO_ONE_CHILD)}" groupName="relationshipType"/>
+			<mx:RadioButton label="1-to-Many" click="set1toMany()" selected="{ (dataProvider.relationshipType == SchemaObjectVO.ONE_TO_MANY_CHILD)}" groupName="relationshipType"/>
+		</mx:HBox>
+		<mx:TabNavigator width="100%" height="100%">
+			
+			<mx:Box label="Properties" width="100%" height="100%">
+				<mx:VDividedBox  width="100%" height="100%">
+					<mx:DataGrid id="props_dg" rowHeight="28" dataProvider="{ dataProvider.properties }" editable="true" width="100%" height="100%">
+						<mx:columns>
+							<mx:DataGridColumn editable="true"  dataField="name" headerText="Name" />
+							<mx:DataGridColumn dataField="type" rendererIsEditor="true" editable="false" headerText="Type" itemRenderer="com.freckle.gaegenerator.views.itemRenderers.PropertyTypeSelector"/>
+						</mx:columns>
+					</mx:DataGrid>
+					<subPanels:PropertyOptions property="{ props_dg.selectedItem as SchemaPropVO }" includeInLayout="{ props_dg.selectedIndex > -1}" visible="{ props_dg.selectedIndex > -1}"/>
+				</mx:VDividedBox>
+				<mx:HBox>
+					<mx:Button label="Delete Property" click="deleteProperty()" toolTip="Remove Property..."/>
+					<mx:Button label="Add Property" click="addProperty()" toolTip="Add Property..."/>	
+				</mx:HBox>
+				
+			</mx:Box>
+			
+			
+			<mx:VBox label="Options" width="100%" height="100%">
+				<mx:Form>
+					<mx:FormItem label="GET/POST Method Name:">
+						<mx:TextInput id="methodName_txti" change="{ dataProvider.methodName = methodName_txti.text; CairngormEventDispatcher.getInstance().dispatchEvent(new AppDataEvent(AppDataEvent.SCHEMA_CHANGED)); }" text="{ dataProvider.methodName}" />
+					</mx:FormItem>
+					<mx:FormItem label="Plural Name:">
+						<mx:TextInput id="pluralName_txti" change="{ dataProvider.pluralName = pluralName_txti.text; CairngormEventDispatcher.getInstance().dispatchEvent(new AppDataEvent(AppDataEvent.SCHEMA_CHANGED)); }" text="{ dataProvider.pluralName}" />
+					</mx:FormItem>
+				</mx:Form>
+			</mx:VBox>
+		</mx:TabNavigator>
+	</mx:VBox>
+	
+</mx:Panel>

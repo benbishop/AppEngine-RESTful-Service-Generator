@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:Box xmlns:mx="http://www.adobe.com/2006/mxml" width="100%" height="100%">
+	<mx:Script>
+		<![CDATA[
+			import com.freckle.gaegenerator.events.AppDataEvent;
+			import com.adobe.cairngorm.control.CairngormEventDispatcher;
+			import com.freckle.gaegenerator.vo.SchemaPropVO;
+			
+			private var _property:SchemaPropVO;
+			[Bindable]
+			public function set property(vo:SchemaPropVO):void{
+				_property = vo;
+				if(vo.constructorArgs.indexOf("required=True") != -1){
+					required_ch.selected = true;
+				}else{
+					required_ch.selected = false;
+				}
+			}
+			public function get property():SchemaPropVO{
+				return _property;
+			}
+			
+			private function onRequiredClicked(evt:MouseEvent):void{
+				if(_property.constructorArgs.indexOf("required=True") != -1){
+					_property.constructorArgs.splice(_property.constructorArgs.indexOf("required=True"),1);
+				}
+				if(_property.constructorArgs.indexOf("required=False") != -1){
+					_property.constructorArgs.splice(_property.constructorArgs.indexOf("required=False"),1);
+				}
+				var ch:CheckBox = evt.currentTarget as CheckBox;
+				if(ch.selected == true){
+					_property.constructorArgs.push("required=True");
+				}else{
+					_property.constructorArgs.push("required=False");
+				}
+				CairngormEventDispatcher.getInstance().dispatchEvent(new AppDataEvent(AppDataEvent.SCHEMA_CHANGED));
+			}
+		]]>
+	</mx:Script>
+	<mx:VBox width="100%" height="100%">
+		<mx:HBox>
+			<mx:Label text="Required:"/>
+			<mx:CheckBox 
+				id="required_ch"
+				click="onRequiredClicked(event)"/>
+		</mx:HBox>
+	</mx:VBox>
+</mx:Box>

@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:WindowedApplication 
+	xmlns:mx="http://www.adobe.com/2006/mxml" 
+	layout="absolute" 
+	xmlns:controller="com.freckle.gaegenerator.controller.*"
+	
+	creationComplete="onCC()" xmlns:schema="com.freckle.gaegenerator.views.screens.schema.*"
+	backgroundColor="#FFFFFF" invoke="onAppInvoke(event)">
+
+	<mx:Script>
+		<![CDATA[
+			import mx.controls.Alert;
+			import com.freckle.gaegenerator.helpers.FileIOManager;
+			import com.freckle.gaegenerator.helpers.ApplicationMenuManager;
+			import mx.controls.FlexNativeMenu;
+			import com.freckle.gaegenerator.model.AppModelLocator;
+			import com.freckle.gaegenerator.vo.SchemaVO;
+			import com.freckle.gaegenerator.events.AppEvent;
+			import com.freckle.gaegenerator.commands.AppCommand;
+			import com.adobe.cairngorm.control.CairngormEventDispatcher;
+			public function onCC():void{
+				CairngormEventDispatcher.getInstance().dispatchEvent(new AppEvent(AppEvent.APP_LOAD));
+				ApplicationMenuManager.getInstance().init(this.nativeWindow);
+				this.addEventListener(NativeDragEvent.NATIVE_DRAG_ENTER, onDragEnter);
+				this.addEventListener(NativeDragEvent.NATIVE_DRAG_DROP, onDragDrop);
+				
+				NativeApplication.nativeApplication.addEventListener(Event.EXITING, onExit);
+				nativeWindow.addEventListener(Event.CLOSING,onWindowClose);
+			}
+			
+			private function onExit(evt:Event):void{
+				var winClosingEvent:Event;
+			    evt.preventDefault();
+			}
+			private function onWindowClose(evt:Event):void{
+				evt.preventDefault();
+				CairngormEventDispatcher.getInstance().dispatchEvent(new AppEvent(AppEvent.APP_EXIT));
+			}
+			
+			private function onDragEnter(evt:NativeDragEvent):void{
+				NativeDragManager.dropAction = NativeDragActions.MOVE; 
+				var di:* = NativeDragManager.dragInitiator;
+			    if(evt.clipboard.hasFormat(ClipboardFormats.FILE_LIST_FORMAT)){ 
+			        NativeDragManager.acceptDragDrop(this); //'this' is the receiving component 
+			        
+			    }
+			}
+			private function onDragDrop(evt:NativeDragEvent):void{
+				if (evt.clipboard.hasFormat(ClipboardFormats.FILE_LIST_FORMAT)) { 
+   					var data:Array = evt.clipboard.getData(ClipboardFormats.FILE_LIST_FORMAT, ClipboardTransferMode.CLONE_ONLY) as Array; 
+					var file:File = data[0] as File;
+					if(file.nativePath.indexOf(".gae") != -1){
+						FileIOManager.getInstance().readSchemaFile(file);
+					}
+				}
+				trace("test");
+			}
+			
+			
+			
+			private function onAppInvoke(evt:InvokeEvent):void{
+				if((evt.currentDirectory != null)&&(evt.arguments.length > 0)){
+				    var dir:File = evt.currentDirectory;
+				    var fileToOpen:File = dir.resolvePath(evt.arguments[0]);
+				    
+				    var stream:FileStream = new FileStream();
+				    stream.open( fileToOpen, FileMode.READ);
+				    var xmlStr:String = stream.readUTFBytes(stream.bytesAvailable);
+				    AppModelLocator.getInstance().schema = SchemaVO.fromXML(new XML(xmlStr));
+				    AppModelLocator.getInstance().schemaXML = AppModelLocator.getInstance().schema.getSchemaXML();
+				    AppModelLocator.getInstance().schema.filePath = fileToOpen.nativePath;
+				}
+
+			}
+		]]>
+	</mx:Script>
+	
+	<mx:Style source="/assets/application.css" />
+	<schema:SchemaUI width="100%" height="100%" />
+	
+	<controller:AppController id="appController" />
+</mx:WindowedApplication>

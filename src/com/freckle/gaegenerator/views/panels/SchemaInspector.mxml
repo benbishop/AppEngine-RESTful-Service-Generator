@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:Panel 
+	xmlns:mx="http://www.adobe.com/2006/mxml" 
+	layout="absolute" 
+	width="100%" 
+	height="100%"
+	title="Schema Inspector" xmlns:subPanels="com.freckle.gaegenerator.views.panels.subPanels.*">
+	<mx:Script>
+		<![CDATA[
+			import com.freckle.gaegenerator.events.AppDataEvent;
+			import com.adobe.cairngorm.control.CairngormEventDispatcher;
+			import mx.binding.utils.ChangeWatcher;
+			import mx.collections.ArrayCollection;
+			import com.freckle.gaegenerator.helpers.FileGenerationCoordinator;
+			import com.freckle.gaegenerator.events.FileGeneratorEvent;
+			import com.freckle.gaegenerator.vo.SchemaObjectVO;
+			import com.freckle.gaegenerator.model.AppModelLocator;
+			import com.freckle.gaegenerator.vo.SchemaVO;
+			[Bindable]
+			public var dataProvider:SchemaVO; 
+			
+			
+		]]>
+	</mx:Script>
+	<mx:TabNavigator width="100%" height="100%">
+		<subPanels:SchemaOptions dataProvider="{ dataProvider }" label="Schema Options" width="100%" height="100%" />
+		<subPanels:HandlerOptions label="Handlers"/>
+	
+		<subPanels:GeneratorOptions dataProvider="{ dataProvider }" label="File Generator" width="100%" height="100%" />
+	</mx:TabNavigator>
+</mx:Panel>

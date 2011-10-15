@@ -1,0 +1,105 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:Panel 
+	xmlns:mx="http://www.adobe.com/2006/mxml" 
+	layout="absolute" 
+	width="100%" 
+	height="100%"
+	title="Schema Explorer"
+	creationComplete="onCC()">
+
+	<mx:Script>
+		<![CDATA[
+			import com.freckle.gaegenerator.events.AppDataEvent;
+			import com.adobe.cairngorm.control.CairngormEventDispatcher;
+			import flash.utils.setTimeout;
+			import com.freckle.gaegenerator.vo.SchemaVO;
+			import mx.collections.ArrayCollection;
+			import com.freckle.gaegenerator.model.AppModelLocator;
+			import com.freckle.gaegenerator.vo.SchemaObjectVO;
+			import mx.events.ListEvent;
+			
+			private var _dataProvider:XML;
+			[Bindable]
+			public function get dataProvider():XML{
+				return _dataProvider;
+			}
+			public function set dataProvider(x:XML):void{
+				_dataProvider = x;
+				setTimeout(expandAll, 1);
+			}
+			
+			private function onCC():void{
+				
+			}
+			
+			private function onTreeItemClick(evt:ListEvent):void{
+				
+				var x:XML = evt.itemRenderer.data as XML;
+				var id:String = x.@id;
+				if(id != "0"){
+					var so:SchemaObjectVO = AppModelLocator.getInstance().schema.getObjectById(id);
+					AppModelLocator.getInstance().selectedSchemaObj = so;
+				}else{
+					AppModelLocator.getInstance().selectedSchemaObj = null;
+				}
+			}
+			
+			private function addObject():void{
+				var newSo:SchemaObjectVO = new SchemaObjectVO("NewObject", new ArrayCollection(), new ArrayCollection());
+				
+				if(explorerTree.selectedItem != null){
+					var x:XML = explorerTree.selectedItem as XML;
+					var id:String = x.@id;
+					if(id != "0"){
+						var so:SchemaObjectVO = AppModelLocator.getInstance().schema.getObjectById(id);
+						so.children.addItem(newSo);
+					}else{
+						var schema:SchemaVO = AppModelLocator.getInstance().schema
+						schema.objects.addItem(newSo);
+					}
+				}else{
+					AppModelLocator.getInstance().schema.objects.addItem(newSo);
+				}
+				
+				
+				AppModelLocator.getInstance().schemaXML = AppModelLocator.getInstance().schema.getSchemaXML();
+				CairngormEventDispatcher.getInstance().dispatchEvent(new AppDataEvent(AppDataEvent.SCHEMA_CHANGED));
+				
+			}
+			private function removeObject():void{
+				var schema:SchemaVO = AppModelLocator.getInstance().schema;
+				if(explorerTree.selectedItem != null){
+					var x:XML = explorerTree.selectedItem as XML;
+					var id:String = x.@id;
+					
+					var childIndex:int = id.split("_")[id.split("_").length-1]
+					
+					if(id != "0"){
+						var parent:* = schema.getObjectParent(id);
+						if(parent is SchemaVO){
+							(parent as SchemaVO).objects.removeItemAt(childIndex);
+						}
+						if(parent is SchemaObjectVO){
+							(parent as SchemaObjectVO).children.removeItemAt(childIndex);
+						}
+					}
+				}
+				AppModelLocator.getInstance().schemaXML = AppModelLocator.getInstance().schema.getSchemaXML();
+				CairngormEventDispatcher.getInstance().dispatchEvent(new AppDataEvent(AppDataEvent.SCHEMA_CHANGED));
+			}
+			
+			private function expandAll():void{
+				explorerTree.validateNow();
+				explorerTree.selectedIndex = 0;
+				explorerTree.validateNow();
+				explorerTree.expandChildrenOf(explorerTree.selectedItem, true);
+				
+			}
+		]]>
+	</mx:Script>
+	<mx:Tree id="explorerTree" folderClosedIcon="{ null }" defaultLeafIcon="{ null }"  folderOpenIcon="{ null }" labelField="@name" itemClick="onTreeItemClick(event)" dataProvider="{ dataProvider }" width="100%" height="100%" />
+	<mx:ControlBar width="100%">
+		<mx:Button label="-" click="removeObject()" toolTip="Remove Selected Object from Schema"/>
+		<mx:Button label="+" click="addObject()" toolTip="Add Object to Schema or Selected Object"/>
+	</mx:ControlBar>
+</mx:Panel>

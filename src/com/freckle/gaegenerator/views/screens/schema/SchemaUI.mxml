@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:Canvas xmlns:mx="http://www.adobe.com/2006/mxml" width="100%" height="100%" xmlns:panels="com.freckle.gaegenerator.views.panels.*">
+	<mx:Script>
+		<![CDATA[
+			import com.freckle.gaegenerator.vo.SchemaObjectVO;
+			import mx.events.ListEvent;
+			import com.freckle.gaegenerator.model.AppModelLocator;
+			
+			
+		]]>
+	</mx:Script>
+	<mx:VBox width="100%" height="100%">
+		<mx:HBox 
+			visible="{ AppModelLocator.getInstance().schema == null}" 
+			includeInLayout="{ AppModelLocator.getInstance().schema == null}"
+			width="100%" 
+			verticalAlign="middle" 
+			paddingRight="10" 
+			paddingLeft="10" 
+			paddingTop="10">
+			<mx:Image source="assets/images/appIcons/128x128.png"/>
+			<panels:SchemaBar/>	
+		</mx:HBox>
+		
+		<mx:HDividedBox visible="{(AppModelLocator.getInstance().schema != null)}" width="100%" height="100%" paddingLeft="10" paddingTop="10" paddingRight="10" paddingBottom="10">
+			<panels:SchemaExplorer dataProvider="{ AppModelLocator.getInstance().schemaXML }" width="300" height="100%" />
+			<mx:VBox width="100%" height="100%">
+				<mx:ViewStack width="100%" height="100%" selectedIndex="{( AppModelLocator.getInstance().selectedSchemaObj == null)?0:1}">
+					<panels:SchemaInspector dataProvider="{ AppModelLocator.getInstance().schema }"/>
+					<panels:ObjectInspector width="100%" height="100%" dataProvider="{ AppModelLocator.getInstance().selectedSchemaObj }"/>	
+				</mx:ViewStack>
+				
+				
+			</mx:VBox>
+		</mx:HDividedBox>
+	</mx:VBox>
+	
+</mx:Canvas>

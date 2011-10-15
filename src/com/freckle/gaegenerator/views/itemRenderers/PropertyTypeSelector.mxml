@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:Box xmlns:mx="http://www.adobe.com/2006/mxml" 
+	width="100%" 
+	height="100%"
+	implements="mx.core.IDataRenderer"
+	creationComplete="init()"
+	show="init()">
+	<mx:Script>
+		<![CDATA[
+			import com.freckle.gaegenerator.events.AppDataEvent;
+			import com.adobe.cairngorm.control.CairngormEventDispatcher;
+			import com.freckle.gaegenerator.vo.SchemaPropTypeVO;
+			import com.freckle.gaegenerator.vo.SchemaPropVO;
+			import com.freckle.gaegenerator.model.AppModelLocator;
+			
+			private function init():void{
+				var vo:SchemaPropVO = this.data as SchemaPropVO;
+				for(var i:int = 0; i < AppModelLocator.getInstance().propTypes.length; i++){
+					if(vo.type != null){
+						if((AppModelLocator.getInstance().propTypes.getItemAt(i) as SchemaPropTypeVO).name == vo.type.name){
+							typeCB.selectedIndex = i;
+							break;
+						}
+					}else{
+						vo.type = AppModelLocator.getInstance().propTypes.getItemAt(0) as SchemaPropTypeVO;
+					}
+				}
+				
+			}
+			private function setType():void{
+				var vo:SchemaPropVO = this.data as SchemaPropVO;
+				vo.type = typeCB.selectedItem as SchemaPropTypeVO;
+				CairngormEventDispatcher.getInstance().dispatchEvent(new AppDataEvent(AppDataEvent.SCHEMA_CHANGED));
+			}
+		]]>
+	</mx:Script>
+	<mx:ComboBox id="typeCB" change="setType()" dataProvider="{ AppModelLocator.getInstance().propTypes }" labelField="name" width="100%" />
+</mx:Box>

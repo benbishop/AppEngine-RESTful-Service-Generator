@@ -1,0 +1,68 @@
+/* CSS file */
+/*Base Styles*/
+ApplicationControlBar{
+	background-color:#004990;
+	color:#ffffff;
+	font-size:11;	
+}
+Button {
+   fillAlphas: 1, 1, 0.75, 0.65;
+   color:#004990;
+}
+Panel{
+	border-alpha:1;
+	border-color:#004990;
+	color:#004990;
+	title-style-name:"PanelTitle";
+	font-size:11;	
+}
+Alert{
+	color:#fff;
+	background-color:#004990;	
+	border-color:#004990;
+	background-alpha:1;
+	border-alpha:1;
+}
+Label{
+	font-weight:bold;	
+}
+/*Custom Components*/
+SchemaOptions{
+	padding-left:10;
+	padding-top:10;
+	padding-right:10;	
+}
+CustomCGIHandlers{
+	padding-left:10;
+	padding-top:10;
+	padding-right:10;
+	padding-bottom:10;
+}
+CustomAppYAMLHandlers{
+	padding-left:10;
+	padding-top:10;
+	padding-right:10;
+	padding-bottom:10;
+}
+GeneratorOptions{
+	padding-left:10;
+	padding-top:10;
+	padding-right:10;
+	padding-bottom:10;
+}
+HandlerOptions{
+	padding-left:10;
+	padding-top:10;
+	padding-right:10;
+	padding-bottom:10;
+}
+/*Classes*/
+.PanelTitle{
+	color:#ffffff;
+}
+TextInput{
+	color:#004990;	
+}
+Tree{
+	color:#004990;	
+}
